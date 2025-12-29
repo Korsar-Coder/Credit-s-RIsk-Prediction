@@ -52,4 +52,4 @@ def main():
         answer = model.predict(normalize_features(features))[0]
         print(answer)
 
-if __name__ == "__main__": main()
+main()
