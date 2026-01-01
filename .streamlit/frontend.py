@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 from joblib import load
 
+pd.set_option("display.float_format", lambda x: "%0.3f" % x)
+np.set_printoptions(suppress=True)
+
 @st.cache_data
 def get_min_values(): return pd.read_csv("../Data/min_vals", dtype= float).values.tolist()
 
@@ -22,7 +25,7 @@ def normalize_features(features: list):
 
 @st.cache_resource
 def load_random_forest():
-    path = "../RandomForest.sav"
+    path = "../Models/RandomForest.sav"
     return load(path)
 
 model = load_random_forest()
@@ -32,9 +35,9 @@ purposes = {1: "Погасить задолжность", 2: "Купить ав�
                 7: "Другое"}
 
 st.title("Приветствуем вас на странице одобрения кредита!", text_alignment="center")
-loan = st.slider("Сумма кредита", 5000, 1_000_000, value= 200_000, step=5_000)
-int_rate = st.slider("Процентная ставка", 5, 30, 15)
-salary = st.slider("Ваша ежемесячная зарплата", 5000, 500_000, 100_000)
+loan = st.slider("Сумма кредита (тыс)", 5, 3000, value= 100, step=5) * 1000
+int_rate = st.slider("Процентная ставка", 5, 30, 15) / 100
+salary = st.slider("Ваша ежемесячная зарплата (тыс)", 5, 500, 100) * 1000
 other_loans = st.slider("Сколько еще у вас кредитов?", 0, 40, 10)
 home_status = st.selectbox("В каком состоянии ваше жилье?",
               options=["Аренда", "Ипотека", "Полностью оплачено", "Иное"])
@@ -52,6 +55,8 @@ features = [salary, int_rate, loan, other_loans, 1 if home_status == "Ипоте
                     1 if purpose == "Другое" else 0,
                     1 if purpose == "Предпринимательство" else 0, 
                     1 if purpose == "Отпуск" else 0]
+print(features)
 features = normalize_features(features)
 answer = model.predict(features)
 st.write(answer)
+print(answer)

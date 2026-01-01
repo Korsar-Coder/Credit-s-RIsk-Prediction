@@ -1,6 +1,7 @@
 from joblib import load
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel
 
 pd.set_option("display.float_format", lambda x: "%0.3f" % x)
 
@@ -51,5 +52,4 @@ def main():
                     1 if purpose == "Предпринимательство" else 0, 1 if purpose == "Отпуск" else 0]
         answer = model.predict(normalize_features(features))[0]
         print(answer)
-
 main()
