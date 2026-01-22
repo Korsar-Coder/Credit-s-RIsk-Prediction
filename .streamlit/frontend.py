@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from joblib import load
+from os.path import join
 
 pd.set_option("display.float_format", lambda x: "%0.3f" % x)
 np.set_printoptions(suppress=True)
@@ -24,11 +25,13 @@ def normalize_features(features: list):
     return np.reshape(features, shape = (1, -1))
 
 @st.cache_resource
-def load_random_forest():
-    path = "../Models/RandomForest.sav"
+def load_model(model_name: str):
+    models_path = "../models"
+    path = join(models_path, model_name + ".sav").replace("\\", "/")
+    print(path)
     return load(path)
 
-model = load_random_forest()
+
 home_states = {1:"Сьемная квартира", 2: "Ипотека", 3: "Полностью владеете", 4:"Другое"}
 purposes = {1: "Погасить задолжность", 2: "Купить авто", 3: "Оформляю кредитную карту", 
                 4:"На новое жилье", 5: "Большая покупка", 5: "Предпринимательство", 6: "Отпуск",
@@ -36,8 +39,8 @@ purposes = {1: "Погасить задолжность", 2: "Купить ав�
 
 st.title("Приветствуем вас на странице одобрения кредита!", text_alignment="center")
 loan = st.slider("Сумма кредита (тыс)", 5, 3000, value= 100, step=5) * 1000
-int_rate = st.slider("Процентная ставка", 5, 30, 15) / 100
-salary = st.slider("Ваша ежемесячная зарплата (тыс)", 5, 500, 100) * 1000
+int_rate = st.slider("Процентная ставка", 5, 24, 15) / 100
+salary = st.slider("Ваша ежемесячная зарплата (тыс)", 5, 1_000, 100, step=10) * 1000
 other_loans = st.slider("Сколько еще у вас кредитов?", 0, 40, 10)
 home_status = st.selectbox("В каком состоянии ваше жилье?",
               options=["Аренда", "Ипотека", "Полностью оплачено", "Иное"])
@@ -46,7 +49,7 @@ purpose = st.selectbox("Для чего вы берете кредит?",
 features = [salary, int_rate, loan, other_loans, 1 if home_status == "Ипотека" else 0,
                     1 if home_status == "Другое" else 0, 
                     1 if home_status == "Полностью владеете" else 0,
-                    1 if home_status == "Сьемная квартира" else 0,
+                    1 if home_status == "Аренда" else 0,
                     1 if purpose == "Погасить задолжность" else 0, 
                     1 if purpose == "Купить авто" else 0,
                     1 if purpose == "Оформляю кредитную карту" else 0, 
@@ -55,8 +58,12 @@ features = [salary, int_rate, loan, other_loans, 1 if home_status == "Ипоте
                     1 if purpose == "Другое" else 0,
                     1 if purpose == "Предпринимательство" else 0, 
                     1 if purpose == "Отпуск" else 0]
+choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest"], 
+                             index = 1)
+model = load_model(choosed_model)
 print(features)
 features = normalize_features(features)
 answer = model.predict(features)
+
 st.write(answer)
-print(answer)
+print(features)
