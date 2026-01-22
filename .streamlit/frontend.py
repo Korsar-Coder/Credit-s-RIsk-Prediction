@@ -16,7 +16,7 @@ def get_max_values(): return pd.read_csv("../Data/max_vals", dtype= float).value
 def normalize_features(features: list):
     min = get_min_values()
     max = get_max_values()
-    last_col_to_normalize = 3
+    last_col_to_normalize = 2
     for key, (min_val, max_val) in enumerate(zip(min, max, strict=True)):
         min_val, max_val = min_val[0], max_val[0]
         features[key] = (features[key] - min_val) / (max_val - min_val)
@@ -41,15 +41,14 @@ st.title("Приветствуем вас на странице одобрени
 loan = st.slider("Сумма кредита (тыс)", 5, 3000, value= 100, step=5) * 1000
 int_rate = st.slider("Процентная ставка", 5, 24, 15) / 100
 salary = st.slider("Ваша ежемесячная зарплата (тыс)", 5, 1_000, 100, step=10) * 1000
-other_loans = st.slider("Сколько еще у вас кредитов?", 0, 40, 10)
 home_status = st.selectbox("В каком состоянии ваше жилье?",
-              options=["Аренда", "Ипотека", "Полностью оплачено", "Иное"])
+              options=home_states.values())
 purpose = st.selectbox("Для чего вы берете кредит?",
              options=purposes.values())
-features = [salary, int_rate, loan, other_loans, 1 if home_status == "Ипотека" else 0,
+features = [salary, int_rate, loan, 1 if home_status == "Ипотека" else 0,
                     1 if home_status == "Другое" else 0, 
                     1 if home_status == "Полностью владеете" else 0,
-                    1 if home_status == "Аренда" else 0,
+                    1 if home_status == "Сьемная квартира" else 0,
                     1 if purpose == "Погасить задолжность" else 0, 
                     1 if purpose == "Купить авто" else 0,
                     1 if purpose == "Оформляю кредитную карту" else 0, 
@@ -62,7 +61,11 @@ choosed_model = st.sidebar.selectbox("Какую модель использов
                              index = 1)
 model = load_model(choosed_model)
 print(features)
-features = normalize_features(features)
+if choosed_model != "RandomForest":
+   features = normalize_features(features)
+else:
+    features = np.reshape(features, (1,-1))
+
 answer = model.predict(features)
 
 st.write(answer)
