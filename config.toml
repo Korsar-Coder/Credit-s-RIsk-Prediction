@@ -2,6 +2,3 @@
 primaryColor = "#7270da"
 backgroundColor = "black"
 secondaryBackgroundColor  = "yellow"
-
-[server]
-baseUrlPath = ".streamlit"
