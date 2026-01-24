@@ -37,36 +37,41 @@ purposes = {1: "Погасить задолжность", 2: "Купить ав�
                 4:"На новое жилье", 5: "Большая покупка", 5: "Предпринимательство", 6: "Отпуск",
                 7: "Другое"}
 
-st.title("Приветствуем вас на странице одобрения кредита!", text_alignment="center")
-loan = st.slider("Сумма кредита (тыс)", 5, 3000, value= 100, step=5) * 1000
-int_rate = st.slider("Процентная ставка", 5, 24, 15) / 100
-salary = st.slider("Ваша ежемесячная зарплата (тыс)", 5, 1_000, 100, step=10) * 1000
-home_status = st.selectbox("В каком состоянии ваше жилье?",
-              options=home_states.values())
-purpose = st.selectbox("Для чего вы берете кредит?",
-             options=purposes.values())
-features = [salary, int_rate, loan, 1 if home_status == "Ипотека" else 0,
-                    1 if home_status == "Другое" else 0, 
-                    1 if home_status == "Полностью владеете" else 0,
-                    1 if home_status == "Сьемная квартира" else 0,
-                    1 if purpose == "Погасить задолжность" else 0, 
-                    1 if purpose == "Купить авто" else 0,
-                    1 if purpose == "Оформляю кредитную карту" else 0, 
-                    1 if purpose == "На новое жилье" else 0,
-                    1 if purpose == "Большая покупка" else 0, 
-                    1 if purpose == "Другое" else 0,
-                    1 if purpose == "Предпринимательство" else 0, 
-                    1 if purpose == "Отпуск" else 0]
-choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest"], 
-                             index = 1)
-model = load_model(choosed_model)
-print(features)
-if choosed_model != "RandomForest":
-   features = normalize_features(features)
-else:
-    features = np.reshape(features, (1,-1))
+with st.form("Приветствуем вас на странице одобрения кредита!"):
+    loan = st.slider("Сумма кредита (тыс)", 5, 3000, value= 100, step=5) * 1000
+    int_rate = st.slider("Процентная ставка", 5, 24, 15) / 100
+    salary = st.slider("Ваша ежемесячная зарплата (тыс)", 5, 1_000, 100, step=10) * 1000
+    home_status = st.selectbox("В каком состоянии ваше жилье?",
+                options=home_states.values())
+    purpose = st.selectbox("Для чего вы берете кредит?",
+                options=purposes.values())
+    features = [salary, int_rate, loan, 1 if home_status == "Ипотека" else 0,
+                        1 if home_status == "Другое" else 0, 
+                        1 if home_status == "Полностью владеете" else 0,
+                        1 if home_status == "Сьемная квартира" else 0,
+                        1 if purpose == "Погасить задолжность" else 0, 
+                        1 if purpose == "Купить авто" else 0,
+                        1 if purpose == "Оформляю кредитную карту" else 0, 
+                        1 if purpose == "На новое жилье" else 0,
+                        1 if purpose == "Большая покупка" else 0, 
+                        1 if purpose == "Другое" else 0,
+                        1 if purpose == "Предпринимательство" else 0, 
+                        1 if purpose == "Отпуск" else 0]
+    choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest"], 
+                                index = 1)
+    model = load_model(choosed_model)
+    print(features)
+    if choosed_model != "RandomForest":
+        features = normalize_features(features)
+    else:
+        features = np.reshape(features, (1,-1))
 
-answer = model.predict(features)
+    submitted = st.form_submit_button(label="Оценить заявку")
 
-st.write(answer)
-print(features)
+if submitted:
+    answer = model.predict(features)
+    if answer == 0:
+        st.success("Одобрено!")
+    else:
+        st.error("Вы ненадежный!")
+    print(features)
