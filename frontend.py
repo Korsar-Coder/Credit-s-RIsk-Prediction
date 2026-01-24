@@ -8,10 +8,10 @@ pd.set_option("display.float_format", lambda x: "%0.3f" % x)
 np.set_printoptions(suppress=True)
 
 @st.cache_data
-def get_min_values(): return pd.read_csv("Data/min_vals", dtype= float).values.tolist()
+def get_min_values(): return pd.read_csv("../Data/min_vals", dtype= float).values.tolist()
 
 @st.cache_data
-def get_max_values(): return pd.read_csv("Data/max_vals", dtype= float).values.tolist()
+def get_max_values(): return pd.read_csv("../Data/max_vals", dtype= float).values.tolist()
 
 def normalize_features(features: list):
     min = get_min_values()
@@ -26,7 +26,7 @@ def normalize_features(features: list):
 
 @st.cache_resource
 def load_model(model_name: str):
-    models_path = "models"
+    models_path = "../models"
     path = join(models_path, model_name + ".sav").replace("\\", "/")
     print(path)
     return load(path)
