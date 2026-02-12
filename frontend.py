@@ -35,12 +35,14 @@ home_status = st.selectbox("В каком состоянии ваше жилье
                 options=home_states)
 purpose = st.selectbox("Для чего вы берете кредит?",
                 options=purposes)
+DTI = loan / salary
 features = pd.DataFrame(data={
         "annual_income_ru":[salary],
         "loan_ammount_ru":[loan],
         "int_rate_ru":[int_rate],
         "home_ownership":[home_converter.get(home_status)],
-        "purpose":[purpose_converter.get(purpose)]
+        "purpose":[purpose_converter.get(purpose)],
+        "DTI":[DTI]
     })
 
 choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest",
@@ -50,6 +52,7 @@ model = load_model(choosed_model)
 answer = model.predict(features)
 proba = model.predict_proba(features)
 proba = str(proba[0]).partition(" ")[0][1:]
+st.write(DTI)
 st.write("Надежность:")
 st.progress(float(proba))
 print(features)
