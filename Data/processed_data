@@ -1,4 +1,4 @@
-home_ownership,purpose,annual_income,int_rate,loan_amount,is_loss,DTI_USD,annual_income_ru,loan_ammount_ru,int_rate_ru
+home_ownership,purpose,annual_income,int_rate,loan_amount,is_loss,DTI,annual_income_ru,loan_ammount_ru,int_rate_ru
 RENT,car,30000.0,0.1527,2500,1,0.08333333333333333,444000.0,37000.0,0.21887858347386172
 RENT,car,48000.0,0.1864,3000,0,0.0625,710400.0,44400.0,0.2671838111298483
 RENT,car,50000.0,0.1596,12000,1,0.24,740000.0,177600.0,0.2287689713322091

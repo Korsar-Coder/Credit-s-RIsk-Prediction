@@ -42,15 +42,11 @@ features = pd.DataFrame(data={
         "home_ownership":[home_converter.get(home_status)],
         "purpose":[purpose_converter.get(purpose)]
     })
-# choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest"], 
-#                             index = 1)
-choosed_model = "LogisticRegression"
+
+choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest",
+                                                                            "Boosting"],  index = 1)
 
 model = load_model(choosed_model)
-    # if choosed_model != "RandomForest":
-    #     features = normalize_features(features)
-    # else:
-    #     features = np.reshape(features, (1,-1))
 answer = model.predict(features)
 proba = model.predict_proba(features)
 proba = str(proba[0]).partition(" ")[0][1:]
