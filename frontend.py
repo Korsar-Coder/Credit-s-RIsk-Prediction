@@ -52,7 +52,6 @@ model = load_model(choosed_model)
 answer = model.predict(features)
 proba = model.predict_proba(features)
 proba = str(proba[0]).partition(" ")[0][1:]
-st.write(DTI)
 st.write("Надежность:")
 st.progress(float(proba))
 print(features)
