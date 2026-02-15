@@ -10,7 +10,8 @@ np.set_printoptions(suppress=True)
 @st.cache_resource
 def load_model(model_name: str):
     models_path = "models"
-    path = join(models_path, model_name + ".joblib").replace("\\", "/")
+    extension = ".joblib"
+    path = join(models_path, model_name + extension).replace("\\", "/")
     print(path)
     return load(path)
 
@@ -40,14 +41,15 @@ features = pd.DataFrame(data={
         "annual_income_ru":[salary],
         "loan_ammount_ru":[loan],
         "int_rate_ru":[int_rate],
+        "DTI":[DTI],
         "home_ownership":[home_converter.get(home_status)],
         "purpose":[purpose_converter.get(purpose)],
-        "DTI":[DTI]
-    })
-
+         })
+features["purpose"] = features["purpose"].astype("category")
+features["home_ownership"] = features["home_ownership"].astype("category")
+print(features.info())
 choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest",
-                                                                            "Boosting"],  index = 1)
-
+                                                                            "Boosting"],  index = 2)
 model = load_model(choosed_model)
 answer = model.predict(features)
 proba = model.predict_proba(features)
