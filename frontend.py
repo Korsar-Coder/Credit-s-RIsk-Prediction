@@ -15,6 +15,31 @@ def load_model(model_name: str):
     print(path)
     return load(path)
 
+def predict_bayes(components: dict,features: pd.DataFrame) -> tuple:
+    scaler = components['scaler']
+    numeric_cols = components["numeric_cols"]
+    categorical_cols = components["categorical_cols"]
+    encoder = components['encoder']
+    gnb = components['gnb']
+    bern = components['bern']
+    ensemble = components['ensemble']
+    threshold = ensemble.best_threshold_
+
+    X_num = features[numeric_cols].values  
+    X_cat = features[categorical_cols].values
+    X_num_scaled = scaler.transform(X_num)
+    X_cat_encoded = encoder.transform(X_cat)
+
+    gnb_proba = gnb.predict_proba(X_num_scaled)[:, 1]
+    bern_proba = bern.predict_proba(X_cat_encoded)[:, 1]
+
+    X_meta = np.column_stack([gnb_proba, bern_proba])
+
+    prediction = ensemble.predict_proba(X_meta)
+    final_proba = prediction[:,1][0]
+    answer = 1 if final_proba >= threshold else 0
+    print(prediction)
+    return (answer, final_proba)
 
 home_states = ["Сьемная квартира","Ипотека", "Полностью владеете", "Другое"]
 purposes = ["Погасить задолжность", "Купить авто", "Оформляю кредитную карту", 
@@ -49,11 +74,17 @@ features["purpose"] = features["purpose"].astype("category")
 features["home_ownership"] = features["home_ownership"].astype("category")
 print(features.info())
 choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest",
-                                                                            "Boosting"],  index = 2)
+                                                                            "NaiveBayes"],  index = 0)
 model = load_model(choosed_model)
-answer = model.predict(features)
-proba = model.predict_proba(features)
-proba = str(proba[0]).partition(" ")[0][1:]
+if choosed_model == "NaiveBayes":
+    answers = predict_bayes(model, features)
+    answer = answers[0]
+    proba = answers[1]
+    proba = 1 - proba
+else:
+    answer = model.predict(features)
+    proba = model.predict_proba(features)
+    proba = str(proba[0]).partition(" ")[0][1:]
 st.write("Надежность:")
 st.progress(float(proba))
 print(features)
