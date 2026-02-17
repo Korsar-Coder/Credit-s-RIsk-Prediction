@@ -54,13 +54,15 @@ home_converter = {"Сьемная квартира": "RENT", "Ипотека":"M
                   "Другое":"OTHER"}
 
 st.title("Приветствуем вас на странице одобрения кредита!")
+choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest",
+                                                                            "NaiveBayes", "KNN"],  index = 0)
 loan = st.slider("Сумма кредита (тыс)", 5, 3000, value= 100, step=5) * 1000
 int_rate = st.slider("Процентная ставка", 5, 30, 15) / 100
 salary = st.slider("Ваша ежемесячная зарплата (тыс)", 5, 1_000, 100, step=10) * 1000 * 12
 home_status = st.selectbox("В каком состоянии ваше жилье?",
-                options=home_states)
+                options=home_states, disabled= True if choosed_model == "KNN" else False)
 purpose = st.selectbox("Для чего вы берете кредит?",
-                options=purposes)
+                options=purposes, disabled= True if choosed_model == "KNN" else False)
 DTI = loan / salary
 features = pd.DataFrame(data={
         "annual_income_ru":[salary],
@@ -73,8 +75,7 @@ features = pd.DataFrame(data={
 features["purpose"] = features["purpose"].astype("category")
 features["home_ownership"] = features["home_ownership"].astype("category")
 print(features.info())
-choosed_model = st.sidebar.selectbox("Какую модель использовать?", options=["LogisticRegression", "RandomForest",
-                                                                            "NaiveBayes"],  index = 0)
+
 model = load_model(choosed_model)
 if choosed_model == "NaiveBayes":
     answers = predict_bayes(model, features)
